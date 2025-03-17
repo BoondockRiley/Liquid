@@ -2,20 +2,19 @@ pipeline {
     agent any
 
     environment {
-        DEV_DB_URL = 'jdbc:postgresql://localhost:5433/postgres'
-        QA_DB_URL = 'jdbc:postgresql://localhost:5434/postgres'
-        DB_USERNAME = 'postgres'
-        DB_PASSWORD = 'secret'
-        LIQUIBASE_DIR = 'data/liquibase'
-        CHANGELOG_FILE = 'example-changelog.sql'
+        // Paths and database configurations
+        LIQUIBASE_DIR = "C:/Users/ben_r/Documents/GitHub/LB/Liquid/data/liquibase"
+        CHANGELOG_FILE = "example-changelog.sql"  // Update with actual changelog file
+        DEV_DB_URL = "jdbc:postgresql://localhost:5433/dev_database"
+        QA_DB_URL = "jdbc:postgresql://localhost:5434/qa_database"
+        DB_USERNAME = "postgres"
+        DB_PASSWORD = "secret"
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
                 echo 'Checking out repository...'
-
-                // Checkout the GitHub repo
                 git branch: 'main', 
                     credentialsId: 'github-token', 
                     url: 'https://github.com/BoondockRiley/Liquid.git'
@@ -27,20 +26,38 @@ pipeline {
                 echo 'Running Liquibase update on DEV database...'
 
                 script {
-                    def devCmd = """
-                        cd "${LIQUIBASE_DIR}" && \
-                        liquibase update --changelog-file=${CHANGELOG_FILE} \
-                        --url=${DEV_DB_URL} \
-                        --username=${DB_USERNAME} \
-                        --password=${DB_PASSWORD}
-                    """
+                    def devResult = bat(
+                        script: """
+                            cd /d "${LIQUIBASE_DIR}"
+                            liquibase update --changelog-file=${CHANGELOG_FILE} \
+                            --url=${DEV_DB_URL} --username=${DB_USERNAME} --password=${DB_PASSWORD}
+                        """,
+                        returnStatus: true
+                    )
 
-                    // Execute Liquibase update for DEV in Git Bash
-                    def devResult = bat(script: "C:\\Program Files\\Git\\bin\\bash.exe -c '${devCmd}'", returnStatus: true)
-
-                    // Stop pipeline if Liquibase fails
                     if (devResult != 0) {
                         error "Liquibase update failed for DEV database!"
+                    }
+                }
+            }
+        }
+
+        stage('Liquibase Verify DEV') {
+            steps {
+                echo 'Verifying Liquibase status on DEV database...'
+
+                script {
+                    def statusResult = bat(
+                        script: """
+                            cd /d "${LIQUIBASE_DIR}"
+                            liquibase status --changelog-file=${CHANGELOG_FILE} \
+                            --url=${DEV_DB_URL} --username=${DB_USERNAME} --password=${DB_PASSWORD} --verbose
+                        """,
+                        returnStatus: true
+                    )
+
+                    if (statusResult != 0) {
+                        error "Liquibase status check failed for DEV database!"
                     }
                 }
             }
@@ -51,18 +68,15 @@ pipeline {
                 echo 'Running Liquibase update on QA database...'
 
                 script {
-                    def qaCmd = """
-                        cd "${LIQUIBASE_DIR}" && \
-                        liquibase update --changelog-file=${CHANGELOG_FILE} \
-                        --url=${QA_DB_URL} \
-                        --username=${DB_USERNAME} \
-                        --password=${DB_PASSWORD}
-                    """
+                    def qaResult = bat(
+                        script: """
+                            cd /d "${LIQUIBASE_DIR}"
+                            liquibase update --changelog-file=${CHANGELOG_FILE} \
+                            --url=${QA_DB_URL} --username=${DB_USERNAME} --password=${DB_PASSWORD}
+                        """,
+                        returnStatus: true
+                    )
 
-                    // Execute Liquibase update for QA in Git Bash
-                    def qaResult = bat(script: "C:\\Program Files\\Git\\bin\\bash.exe -c '${qaCmd}'", returnStatus: true)
-
-                    // Stop pipeline if Liquibase fails
                     if (qaResult != 0) {
                         error "Liquibase update failed for QA database!"
                     }
@@ -70,9 +84,24 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Liquibase Verify QA') {
             steps {
-                echo 'Pipeline completed successfully.'
+                echo 'Verifying Liquibase status on QA database...'
+
+                script {
+                    def statusResult = bat(
+                        script: """
+                            cd /d "${LIQUIBASE_DIR}"
+                            liquibase status --changelog-file=${CHANGELOG_FILE} \
+                            --url=${QA_DB_URL} --username=${DB_USERNAME} --password=${DB_PASSWORD} --verbose
+                        """,
+                        returnStatus: true
+                    )
+
+                    if (statusResult != 0) {
+                        error "Liquibase status check failed for QA database!"
+                    }
+                }
             }
         }
     }
