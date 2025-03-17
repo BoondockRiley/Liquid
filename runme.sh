@@ -12,9 +12,21 @@ docker run --name postgres-prod -p 5435:5432 -e POSTGRES_PASSWORD=secret -d post
 echo "*** Waiting for PostgreSQL to be ready..."
 sleep 10
 
-echo "*** Setting up dvdrental schema..."
-docker exec -it postgres-dev psql -U postgres -a -c "CREATE SCHEMA dvdrental AUTHORIZATION postgres;"
-docker exec -it postgres-qa psql -U postgres -a -c "CREATE SCHEMA dvdrental AUTHORIZATION postgres;"
-docker exec -it postgres-prod psql -U postgres -a -c "CREATE SCHEMA dvdrental AUTHORIZATION postgres;"
+echo
+echo "*** Setting up dvdrental schema on postgres-dev ... "
+docker exec \
+    -it \
+    postgres-dev \
+    /bin/bash -c "psql -U postgres -a -c 'CREATE SCHEMA dvdrental AUTHORIZATION postgres;'"
 
-echo "*** Done!"
+echo "*** Setting up dvdrental schema on postgres-qa ... "
+docker exec \
+    -it \
+    postgres-qa \
+    /bin/bash -c "psql -U postgres -a -c 'CREATE SCHEMA dvdrental AUTHORIZATION postgres;'"
+
+echo "*** Setting up dvdrental schema on postgres-prod ... "
+docker exec \
+    -it \
+    postgres-prod \
+    /bin/bash -c "psql -U postgres -a -c 'CREATE SCHEMA dvdrental AUTHORIZATION postgres;'"
