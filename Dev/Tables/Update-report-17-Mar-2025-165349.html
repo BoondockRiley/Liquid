@@ -387,7 +387,7 @@
             Liquibase Update Report
         </div>
         <div style="color: #414141; font-weight: lighter">
-            Update Initiated 2025-03-10T15:49:02.317Z
+            Update Initiated 2025-03-17T16:53:48.254Z
         </div>
         <hr/>
         <div class="main__alert" style="background: #9DD96AFF;">
@@ -415,7 +415,7 @@ Liquibase: Update has been successful. Rows affected: 1</pre>
                             <div class="section__title">
                                 Runtime Summary
                             </div>
-                            <div>liquibase --changeLogFile&#61;alter-users-table.sql update</div>
+                            <div>liquibase update --changelog-file alter-users-table.sql</div>
                         </div>
                         <i class="summary__accordion__icon">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -484,7 +484,7 @@ Liquibase: Update has been successful. Rows affected: 1</pre>
                                     <td>
                                         <div class="runtime__metadata__item">
                                             <div class="runtime__metadata__item__key">Start Time</div>
-                                            <div class="runtime__metadata__item__value">2025-03-10T15:49:02.317Z</div>
+                                            <div class="runtime__metadata__item__value">2025-03-17T16:53:48.254Z</div>
                                         </div>
                                     </td>
                                     <td>
@@ -498,7 +498,7 @@ Liquibase: Update has been successful. Rows affected: 1</pre>
                                     <td>
                                         <div class="runtime__metadata__item">
                                             <div class="runtime__metadata__item__key">Update Duration</div>
-                                            <div class="runtime__metadata__item__value">0 hours 0 mins 1 secs 388 ms</div>
+                                            <div class="runtime__metadata__item__value">0 hours 0 mins 1 secs 331 ms</div>
                                         </div>
                                     </td>
                                     <td>
@@ -555,9 +555,9 @@ Liquibase: Update has been successful. Rows affected: 1</pre>
                                 <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-1.25 16.518l-4.5-4.319 1.396-1.435 3.078 2.937 6.105-6.218 1.421 1.409-7.5 7.626z"
                                       fill="green"/>
                             </svg>
-                            <div style="padding: 5px 10px">002-add-columns</div>
+                            <div style="padding: 5px 10px">raw</div>
                         </div>
-                        <div class="summary__accordion__url">benriley</div>
+                        <div class="summary__accordion__url">includeAll</div>
                         <i class="summary__accordion__icon">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
@@ -594,7 +594,7 @@ Liquibase: Update has been successful. Rows affected: 1</pre>
                                     Generated SQL
                                 </td>
                                 <td class="summary__accordion__changeset__value" style="color: #000">
-                                    <div class="content__box" style="font-family: monospace; white-space: pre-wrap; word-wrap: anywhere">ALTER TABLE users ADD COLUMN phone VARCHAR(20);&#10;ALTER TABLE users ADD COLUMN role VARCHAR(50) DEFAULT &#39;user&#39;;</div>
+                                    <div class="content__box" style="font-family: monospace; white-space: pre-wrap; word-wrap: anywhere">-- Liquibase ChangeLog&#10;-- Changes for dvdrental schema&#10;&#10;-- ChangeSet to alter the users table&#10;-- ChangeSet ID should be unique per change&#10;-- Author: Ben Riley&#10;&#10;-- Add a new column&#10;--liquibase formatted sql&#10;--changeset benriley:001&#10;ALTER TABLE dvdrental.customers ADD COLUMN last_login TIMESTAMP;&#10;--rollback ALTER TABLE dvdrental.users DROP COLUMN last_login;&#10;&#10;-- Modify a column&#10;--changeset benriley:002&#10;ALTER TABLE dvdrental.customers ALTER COLUMN email TYPE VARCHAR(255);&#10;--rollback ALTER TABLE dvdrental.users ALTER COLUMN email TYPE VARCHAR(100);</div>
                                 </td>
                             </tr>
                             </tbody>

@@ -1,8 +1,17 @@
+-- Liquibase ChangeLog
+-- Changes for dvdrental schema
+
+-- ChangeSet to alter the users table
+-- ChangeSet ID should be unique per change
+-- Author: Ben Riley
+
+-- Add a new column
 --liquibase formatted sql
+--changeset benriley:001
+ALTER TABLE dvdrental.customers ADD COLUMN last_login TIMESTAMP;
+--rollback ALTER TABLE dvdrental.users DROP COLUMN last_login;
 
--- changeset benriley:002-add-columns
-ALTER TABLE users ADD COLUMN phone VARCHAR(20);
-ALTER TABLE users ADD COLUMN role VARCHAR(50) DEFAULT 'user';
-
---rollback ALTER TABLE users DROP COLUMN phone;
---rollback ALTER TABLE users DROP COLUMN role;
+-- Modify a column
+--changeset benriley:002
+ALTER TABLE dvdrental.customers ALTER COLUMN email TYPE VARCHAR(255);
+--rollback ALTER TABLE dvdrental.users ALTER COLUMN email TYPE VARCHAR(100);
