@@ -1,22 +1,31 @@
 pipeline {
-  agent any
+    agent any
 
-  stages {
-    stage('Dev') {
-      steps {
-        echo 'We begin'
-        
-        // Checkout Git repository
-        git branch: 'main', 
-            credentialsId: 'github-token', 
-            url: 'https://github.com/BoondockRiley/Liquid.git'
-      }
-    }
+    stages {
+        stage('Dev') {
+            steps {
+                echo 'We begin'
 
-    stage('Test') {
-      steps {
-        echo 'We begin again'
-      }
+                // Checkout the GitHub repo
+                git branch: 'main', 
+                    credentialsId: 'github-token', 
+                    url: 'https://github.com/BoondockRiley/Liquid.git'
+            }
+        }
+
+        stage('Run Script') {
+            steps {
+                echo 'Running Bash script'
+
+                // Run the script using Git Bash
+                bat '"C:\\Program Files\\Git\\bin\\bash.exe" -c "/c/Users/ben_r/Documents/GitHub/LB/Liquid/runme.sh"'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'We begin again'
+            }
+        }
     }
-  }
 }
