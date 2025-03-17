@@ -4,8 +4,8 @@ pipeline {
     environment {
         LIQUIBASE_PATH = "/usr/local/bin/liquibase"  
         CHANGELOG_FILE = "QA/Tables/changelog.sql"
-        DEV_DB_URL = "jdbc:postgresql://localhost:5433/dvdrental"
-        QA_DB_URL = "jdbc:postgresql://localhost:5434/dvdrental"
+        DEV_DB_URL = "jdbc:postgresql://localhost:5433/postgres"
+        QA_DB_URL = "jdbc:postgresql://localhost:5434/postgres"
         DB_USER = "postgres"
         DB_PASS = "secret"
     }
