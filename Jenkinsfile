@@ -1,15 +1,15 @@
 pipeline {
     agent any
 
-    environment {
-        // Paths and database configurations
-        LIQUIBASE_DIR = "C:/Users/ben_r/Documents/GitHub/LB/Liquid/data/liquibase"
-        CHANGELOG_FILE = "example-changelog.sql"  // Update with actual changelog file
-        DEV_DB_URL = "jdbc:postgresql://localhost:5433/dev_database"
-        QA_DB_URL = "jdbc:postgresql://localhost:5434/qa_database"
-        DB_USERNAME = "postgres"
-        DB_PASSWORD = "secret"
-    }
+    // environment {
+    //     // Paths and database configurations
+    //     LIQUIBASE_DIR = "C:/Users/ben_r/Documents/GitHub/LB/Liquid/data/liquibase"
+    //     CHANGELOG_FILE = "example-changelog.sql"  // Update with actual changelog file
+    //     DEV_DB_URL = "jdbc:postgresql://localhost:5433/dev_database"
+    //     QA_DB_URL = "jdbc:postgresql://localhost:5434/qa_database"
+    //     DB_USERNAME = "postgres"
+    //     DB_PASSWORD = "secret"
+    // }
 
     stages {
         stage('Checkout Code') {
