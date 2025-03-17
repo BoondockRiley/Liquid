@@ -9,7 +9,7 @@ pipeline {
         // Checkout Git repository
         git branch: 'main', 
             credentialsId: 'github-token', 
-            url: 'https://github.com/your-username/your-repo.git'
+            url: 'https://github.com/BoondockRiley/Liquid.git'
       }
     }
 
