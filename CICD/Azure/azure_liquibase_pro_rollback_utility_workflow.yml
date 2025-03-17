@@ -1,0 +1,129 @@
+#####################################################################
+#  Azure Pipeline to perform manual rollback of database
+#  changes using Liquibase Pro, Liquibase Pro Flows, and Custom
+#  Policy checks. The environment is configurable.
+#####################################################################
+pr: none
+trigger: none
+
+name: Rollback One Update in branch $(Build.SourceBranchName)
+
+#####################################################################
+#  Load variables from the template alongside secrets and variables
+#  linked from Azure Key Vault.
+#####################################################################
+variables:
+  - template: ./variables.yml
+  - group: Liquibase_Variables
+
+#####################################################################
+# The Agent Pool where this pipeline runs. Defined in variables.yml
+#####################################################################
+pool:
+  name: $(Agent.PoolName)
+
+#####################################################################
+# The repositories needed to run, build, and deploy.
+#####################################################################
+resources:
+  repositories:
+
+    # Repository for the Tools Project, which includes flows and policies
+    - repository: TOOLS_REPOSITORY
+      name: $(Git.ConfigRepository)
+      type: GitHub
+      endpoint: github.com_dreads
+      source: adeelmalik78/Automations
+      ref: 'refs/heads/main'
+
+###################################################################
+# Stage are logical boundaries in an Azure DevOps pipeline. We only
+# need one.
+###################################################################
+stages:
+  - stage: Rollback
+    # Check out the code to the runner workspace directory
+    jobs:
+      # Clean the workspace of cached data
+      - job: cleanWorkspace
+        displayName: Clean workspace
+        workspace:
+          clean: all
+
+      # After cleaning workspace run the job shown as "Database
+      # Deployment" in the UI and in Github Branch Protection
+      - job: databaseRollback
+        dependsOn: cleanWorkspace
+        displayName: Rollback One Update
+        steps:
+          # Debugging script to show all available variables
+          - script: |
+              for var in $(compgen -e); do
+                echo $var ${!var};
+              done
+
+          # Check out the code to the runner workspace directory to the cs-impl-guide-examples directory
+          - checkout: self
+            persistCredentials: true
+            clean: true
+            path: cs-impl-guide-examples
+
+          # Check out the tools repository with flow files and Custom Checks configs
+          - checkout: TOOLS_REPOSITORY
+            persistCredentials: true
+            clean: true
+
+          # Set the environment variable FLOW_FILE to use the "rollback"
+          # flow which rolls back database changes
+          - bash: |
+              echo "##vso[task.setvariable variable=FLOW_FILE;]flowfiles/liquibase-rollback.flowfile.yaml"
+
+          - script: |
+              pwd
+              liquibase flow \
+                 --flow-file=$(FLOW_FILE) \
+                 --logfile=logs/liquibase.log
+
+            displayName: Roll back in DEV
+            # This condition controls whether this step runs. It will trigger when the branch is 'develop'
+            condition: eq( variables['Build.SourceBranchName'], 'develop')
+            env:
+              LIQUIBASE_LICENSE_KEY: $(Liquibase-Pro-Key)
+              LIQUIBASE_COMMAND_URL: $(Liquibase-command-url-dev)
+              LIQUIBASE_COMMAND_USERNAME: $(liquibase-command-username-dev)
+              LIQUIBASE_COMMAND_PASSWORD: $(liquibase-command-password-dev)
+              LIQUIBASE_DEFAULTS_FILE: ./cs-impl-guide-examples/liquibase.properties
+              LIQUIBASE_SEARCH_PATH: "cs-impl-guide-examples,Automations,."
+
+          - script: |
+              pwd
+              liquibase flow \
+                 --flow-file=$(FLOW_FILE) \
+                 --logfile=logs/liquibase.log
+            displayName: Roll back in QA
+            # This condition controls whether this step runs. It will trigger when the branch is 'qa'
+            condition: eq( variables['Build.SourceBranchName'], 'qa')
+            env:
+              LIQUIBASE_LICENSE_KEY: $(Liquibase-Pro-Key)
+              LIQUIBASE_COMMAND_URL: $(liquibase-command-url-qa)
+              LIQUIBASE_COMMAND_USERNAME: $(liquibase-command-username-qa)
+              LIQUIBASE_COMMAND_PASSWORD: $(liquibase-command-password-qa)
+              LIQUIBASE_DEFAULTS_FILE: ./cs-impl-guide-examples/liquibase.properties
+              LIQUIBASE_SEARCH_PATH: "cs-impl-guide-examples,Automations,."
+
+          - script: |
+              pwd
+              liquibase flow \
+                 --flow-file=$(FLOW_FILE) \
+                 --logfile=logs/liquibase.log
+            displayName: Roll back in PROD
+            # This condition controls whether this step runs. It will trigger when the branch starts with 'release/'
+            condition: startsWith( variables['Build.SourceBranchName'], 'release/')
+            env:
+              LIQUIBASE_LICENSE_KEY: $(Liquibase-Pro-Key)
+              LIQUIBASE_COMMAND_URL: $(liquibase-command-url-prod)
+              LIQUIBASE_COMMAND_USERNAME: $(liquibase-command-username-prod)
+              LIQUIBASE_COMMAND_PASSWORD: $(liquibase-command-password-prod)
+              LIQUIBASE_DEFAULTS_FILE: ./cs-impl-guide-examples/liquibase.properties
+              LIQUIBASE_SEARCH_PATH: "cs-impl-guide-examples,Automations,."
+

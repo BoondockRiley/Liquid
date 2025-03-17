@@ -1,0 +1,101 @@
+#####################################################################
+#  Azure Pipeline to perform continuous deployment (CD) of database
+#  changes using Liquibase Pro, Liquibase Pro Flows, and Custom
+#  Policy checks. The lowest environment, DEV, is the only
+#  continually deployed one.
+#####################################################################
+trigger:
+  branches:
+    include:
+      - 'develop'
+
+name: Continuous Deployment of $(Build.SourceBranchName)
+
+#####################################################################
+#  Load variables from the template alongside secrets and variables
+#  linked from Azure Key Vault.
+#####################################################################
+variables:
+  - template: ./variables.yml
+  - group: Liquibase_Variables
+
+#####################################################################
+# The Agent Pool where this pipeline runs. Defined in variables.yml
+#####################################################################
+pool:
+  name: $(Agent.PoolName)
+
+#####################################################################
+# The repositories needed to run, build, and deploy.
+#####################################################################
+resources:
+  repositories:
+
+    # Repository for the Tools Project, which includes flows and policies
+    - repository: TOOLS_REPOSITORY
+      name: $(Git.ConfigRepository)
+      type: GitHub
+      endpoint: github.com_dreads
+      source: adeelmalik78/Automations
+      ref: 'refs/heads/main'
+
+###################################################################
+# Stage are logical boundaries in an Azure DevOps pipeline. We only
+# need one.
+###################################################################
+stages:
+  - stage: CD
+    jobs:
+      # Clean the workspace of cached data
+      - job: cleanWorkspace
+        displayName: Clean workspace
+        workspace:
+          clean: all
+
+      # After cleaning workspace run the job shown as "Database
+      # Deployment" in the UI and in Github Branch Protection
+      - job: databaseDeployment
+        dependsOn: cleanWorkspace
+        displayName: Database Deployment
+
+        steps:
+          # Debugging script to show all available variables
+          - script: |
+              for var in $(compgen -e); do
+                echo $var ${!var};
+              done
+
+          # Check out the code
+          - checkout: self
+            persistCredentials: true
+            clean: true
+            displayName: Check out self
+
+          # Check out the tools repository with flow files and Custom Checks configs
+          - checkout: TOOLS_REPOSITORY
+            persistCredentials: true
+            clean: true
+
+          # Set the environment variable FLOW_FILE to use the "pre-merge"
+          # flow which pushes database changes
+          - bash: |
+              echo "##vso[task.setvariable variable=FLOW_FILE;]flowfiles/liquibase-postmerge.flowfile.yaml"
+
+          # Run Liquibase using LIQUIBASE_COMMAND_URL, LIQUIBASE_COMMAND_USERNAME, and LIQUIBASE_COMMAND_PASSWORD in
+          # DEV. Note the "-dev" suffix for those values in the 'env' section.
+          - script: |
+              pwd
+              liquibase flow \
+                 --flow-file=$(FLOW_FILE) \
+                 --logfile=logs/liquibase.log
+
+            displayName: Liquibase Deployment to DEV
+            # This condition ensures we only trigger when the branch is 'develop'
+            condition: eq( variables['Build.SourceBranchName'], 'develop')
+            env:
+              LIQUIBASE_LICENSE_KEY: $(Liquibase-Pro-Key)
+              LIQUIBASE_COMMAND_URL: $(Liquibase-command-url-dev)
+              LIQUIBASE_COMMAND_USERNAME: $(liquibase-command-username-dev)
+              LIQUIBASE_COMMAND_PASSWORD: $(liquibase-command-password-dev)
+              LIQUIBASE_DEFAULTS_FILE: ./cs-impl-guide-examples/liquibase.properties
+              LIQUIBASE_SEARCH_PATH: "cs-impl-guide-examples,Automations,."

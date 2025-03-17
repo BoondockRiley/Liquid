@@ -1,0 +1,13 @@
+variables:
+  # Project.Name is not currently used in the pipeline operations
+  Project.Name: implementation_guide
+  # Application.Name is used in the pipeline run name and artifact creation/upload steps
+  Application.Name: Implementation Guide Azure DevOps Example Application
+  # SQL Source Code Repo
+  Git.SqlRepository: liquibase/cs-impl-guide-examples-sql
+  # Name of Agent pool which is managed at the ADO organization level in Pipelines->Agent Pools
+  Agent.PoolName: CS_Guide
+  # BuildId is used in the pipeline run name, labels, and artifact creation/upload steps
+  App.Version: $(Build.BuildId)
+
+
