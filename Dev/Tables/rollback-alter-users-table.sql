@@ -1,5 +1,14 @@
 --liquibase formatted sql
 
 -- changeset benriley:002-add-columns-rollback
-ALTER TABLE users DROP COLUMN phone;
-ALTER TABLE users DROP COLUMN role;
+-- Rollback: Drop the `date_of_birth` column from customers table
+ALTER TABLE dvdrental.customers
+DROP COLUMN IF EXISTS date_of_birth;
+
+-- Rollback: Drop the `country` column from addresses table
+ALTER TABLE dvdrental.addresses
+DROP COLUMN IF EXISTS country;
+
+-- Rollback: Drop the `payment_method` column from rental_history table
+ALTER TABLE dvdrental.rental_history
+DROP COLUMN IF EXISTS payment_method;
