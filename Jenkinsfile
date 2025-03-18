@@ -1,11 +1,8 @@
 pipeline {
-    agent {
-        docker {
-            image 'liquibase/liquibase:latest' // Use the latest version of the Liquibase Docker image
-        }
-    }
+    agent none  // No global agent, use specific agents for each stage
     stages {
         stage('Checkout Code') {
+            agent any  // Runs on any available Jenkins node
             steps {
                 echo 'Checking out repository...'
                 git branch: 'main', 
@@ -15,15 +12,17 @@ pipeline {
         }
 
         stage('Liquibase Command') {
+            agent {
+                docker {
+                    image 'liquibase/liquibase:latest'  // Use Liquibase Docker image
+                    args '-v /c/ProgramData/Jenkins/.jenkins/workspace/Liquid_main:/mnt/jenkins_workspace' // Mount Jenkins workspace to Docker container
+                }
+            }
             steps {
                 script {
-                    // Define Windows-style and Docker-compatible paths
-                    def workspacePath = "C:/ProgramData/Jenkins/.jenkins/workspace/Liquid_main"
-                    def workspaceDockerPath = "/mnt/jenkins_workspace"
-
-                    // Run Liquibase inside the container with correct path mounting
-                    bat """
-                    docker run -d -t -v ${workspacePath}:${workspaceDockerPath} -w ${workspaceDockerPath} liquibase/liquibase:latest liquibase --version
+                    // Run Liquibase inside the container to check the version
+                    sh """
+                    liquibase --version  // Check Liquibase version to confirm it's working
                     """
                 }
             }
