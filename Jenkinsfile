@@ -11,7 +11,7 @@ pipeline {
 
         stage('Git') {
           steps {
-            git(url: 'https://github.com/BoondockRiley/Liquid', branch: 'main', changelog: true, credentialsId: 'github-token-2', poll: true)
+            git(url: 'https://github.com/BoondockRiley/Liquid', branch: 'main', changelog: true, credentialsId: 'github-token2', poll: true)
           }
         }
 
