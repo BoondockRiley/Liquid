@@ -1,45 +1,28 @@
 pipeline {
-  agent {
-    docker {
-      image 'liquibase:latest'
+    agent {
+        docker {
+            image 'liquibase/liquibase:latest'  // Use the latest version or specify the version
+        }
     }
-
-  }
-  stages {
-    stage('Dev') {
-      parallel {
-        stage('Dev') {
-          steps {
-            echo 'Start'
-          }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                echo 'Checking out repository...'
+                git branch: 'main', 
+                    credentialsId: 'github-token2', 
+                    url: 'https://github.com/BoondockRiley/Liquid.git'
+            }
         }
 
-        stage('Git') {
-          steps {
-            git(url: 'https://github.com/BoondockRiley/Liquid', branch: 'main', changelog: true, credentialsId: 'github-token2', poll: true)
-          }
+        stage('Liquibase Command') {
+            steps {
+                script {
+                    // Run Liquibase inside the container using bat (Windows)
+                    bat """
+                    liquibase --version  // Check Liquibase version to confirm it's working
+                    """
+                }
+            }
         }
-
-        stage('Directory') {
-          steps {
-            bat(script: 'pwd', returnStatus: true)
-          }
-        }
-
-      }
     }
-
-    stage('Pause') {
-      steps {
-        echo 'Pause'
-      }
-    }
-
-    stage('Test') {
-      steps {
-        echo 'Start Test Deployment'
-      }
-    }
-
-  }
 }
