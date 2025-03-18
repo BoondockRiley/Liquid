@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+    
+    environment {
+        GIT_URL = 'https://github.com/BoondockRiley/Liquid.git'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout code from your Git repository
+                git url: "${GIT_URL}"
+            }
+        }
+
+        stage('Dev') {
+            steps {
+                script {
+                    // Dev stage tasks (e.g., build, deploy, etc.)
+                    echo 'Running Dev Stage'
+                    // Add your dev-specific commands here
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                script {
+                    // Test stage tasks (e.g., run tests, validation, etc.)
+                    echo 'Running Test Stage'
+                    // Add your test-specific commands here
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline succeeded.'
+        }
+        failure {
+            echo 'Pipeline failed.'
+        }
+    }
+}
