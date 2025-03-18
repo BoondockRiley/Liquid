@@ -1,7 +1,7 @@
 pipeline {
   agent any  // This will run on any available node (including master if no agents are specified)
   environment {
-    LIQUIBASE_DIR = "Liquid/data/liquibase"
+    //LIQUIBASE_DIR = "Liquid/data/liquibase"
     CHANGELOG_FILE = "example-changelog.sql"  // Update with your actual changelog file name
     DEV_DB_URL = "jdbc:postgresql://localhost:5433/postgres"
     QA_DB_URL = "jdbc:postgresql://localhost:5434/postgres"
