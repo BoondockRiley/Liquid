@@ -1,7 +1,7 @@
 pipeline {
   agent {
     docker {
-      image 'liquibase:latest'
+      image 'liquibase/liquibase:latest'
     }
 
   }
