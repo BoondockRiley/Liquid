@@ -2,7 +2,7 @@ pipeline {
   agent any  // This will run on any available node (including master if no agents are specified)
   environment {
     //LIQUIBASE_DIR = "Liquid/data/liquibase"
-    CHANGELOG_FILE = "example-changelog.sql"  // Update with your actual changelog file name
+   // CHANGELOG_FILE = "example-changelog.sql"  // Update with your actual changelog file name
     DEV_DB_URL = "jdbc:postgresql://localhost:5433/postgres"
     QA_DB_URL = "jdbc:postgresql://localhost:5434/postgres"
     DB_USERNAME = "postgres"
@@ -25,12 +25,12 @@ pipeline {
       def workspaceDir = pwd()  // This will give you the workspace directory path
 
       // Set the full path for the changelog file
-      def changelogPath = "${workspaceDir}\\Liquid\\data\\liquibase\\${CHANGELOG_FILE}"
+     // def changelogPath = "${workspaceDir}\\Liquid\\data\\liquibase\\${CHANGELOG_FILE}"
 
       // Run Liquibase status in the correct directory
       bat """
         cd ${workspaceDir}\\Liquid\\data\\liquibase
-        liquibase status --url="${DEV_DB_URL}" --changeLogFile="${changelogPath}" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
+        liquibase status --url="${DEV_DB_URL}" --changeLogFile="\\Liquid\\data\\liquibase\\example-changelog.sql" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
       """
     }
   }
@@ -42,7 +42,7 @@ pipeline {
         script {
           // Running Liquibase update using bat instead of sh for Windows
           bat """
-            liquibase update --url="${DEV_DB_URL}" --changeLogFile="${LIQUIBASE_DIR}\\${CHANGELOG_FILE}" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
+            liquibase update --url="${DEV_DB_URL}" --changeLogFile="\\Liquid\\data\\liquibase\\example-changelog.sql" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
           """
         }
       }
