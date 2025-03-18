@@ -21,9 +21,9 @@ pipeline {
     stage('Liquibase Status') {
       steps {
         script {
-          // Running Liquibase status
-          sh """
-            liquibase status --url="${DEV_DB_URL}" --changeLogFile="${LIQUIBASE_DIR}/${CHANGELOG_FILE}" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
+          // Running Liquibase status using bat instead of sh for Windows
+          bat """
+            liquibase status --url="${DEV_DB_URL}" --changeLogFile="${LIQUIBASE_DIR}\\${CHANGELOG_FILE}" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
           """
         }
       }
@@ -32,9 +32,9 @@ pipeline {
     stage('Liquibase Update') {
       steps {
         script {
-          // Running Liquibase update
-          sh """
-            liquibase update --url="${DEV_DB_URL}" --changeLogFile="${LIQUIBASE_DIR}/${CHANGELOG_FILE}" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
+          // Running Liquibase update using bat instead of sh for Windows
+          bat """
+            liquibase update --url="${DEV_DB_URL}" --changeLogFile="${LIQUIBASE_DIR}\\${CHANGELOG_FILE}" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
           """
         }
       }
