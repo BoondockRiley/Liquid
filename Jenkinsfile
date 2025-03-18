@@ -1,4 +1,29 @@
 pipeline {
+    agent {
+        docker {
+            image 'liquibase/liquibase:'
+            reuseNode true
+        }
+    }
+    stages {
+        stage('Checkout Code') {
+        steps {
+            echo 'Checking out repository...'
+            git branch: 'main', 
+                credentialsId: 'github-token', 
+                url: 'https://github.com/BoondockRiley/Liquid.git'
+        }
+        }
+
+        stage("Liquibase Pre Check") {
+            steps {
+             sh 'liquibase --version'
+         }
+     }
+    }
+}
+
+pipeline {
   agent any  // This will run on any available node (including master if no agents are specified)
   environment {
     //LIQUIBASE_DIR = "Liquid/data/liquibase"
@@ -28,6 +53,18 @@ pipeline {
   }
 }
 
+
+    stage('Liquibase Update') {
+      steps {
+        script {
+          // Running Liquibase update using bat instead of sh for Windows
+          bat """
+            liquibase update --url="${DEV_DB_URL}" --changeLogFile="\\Liquid\\data\\liquibase\\example-changelog.sql" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
+          """
+        }
+      }
+    }
+  }
   post {
     always {
       // Clean workspace
