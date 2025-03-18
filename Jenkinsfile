@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'liquibase/liquibase:latest'  // Use the latest version or specify the version
+            image 'liquibase/liquibase:latest' // Use the latest version of the Liquibase Docker image
         }
     }
     stages {
@@ -9,7 +9,7 @@ pipeline {
             steps {
                 echo 'Checking out repository...'
                 git branch: 'main', 
-                    credentialsId: 'github-token2', 
+                    credentialsId: 'github-token', 
                     url: 'https://github.com/BoondockRiley/Liquid.git'
             }
         }
@@ -17,9 +17,13 @@ pipeline {
         stage('Liquibase Command') {
             steps {
                 script {
-                    // Run Liquibase inside the container using bat (Windows)
+                    // Define Windows-style and Docker-compatible paths
+                    def workspacePath = "C:/ProgramData/Jenkins/.jenkins/workspace/Liquid_main"
+                    def workspaceDockerPath = "/mnt/jenkins_workspace"
+
+                    // Run Liquibase inside the container with correct path mounting
                     bat """
-                    liquibase --version  // Check Liquibase version to confirm it's working
+                    docker run -d -t -v ${workspacePath}:${workspaceDockerPath} -w ${workspaceDockerPath} liquibase/liquibase:latest liquibase --version
                     """
                 }
             }
