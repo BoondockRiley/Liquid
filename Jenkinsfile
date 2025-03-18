@@ -18,20 +18,23 @@ pipeline {
       }
     }
 
-    stage('Liquibase Status') {
-    steps {
-        script {
-        // Get the current Jenkins workspace directory dynamically
-        def workspaceDir = pwd()  // This will give you the workspace directory path
+ stage('Liquibase Status') {
+  steps {
+    script {
+      // Get the current Jenkins workspace directory dynamically
+      def workspaceDir = pwd()  // This will give you the workspace directory path
 
-        // Change directory to the correct path inside Jenkins workspace
-        bat """
-            cd ${workspaceDir}\\Liquid\\data\\liquibase
-            liquibase status --url="${DEV_DB_URL}" --changeLogFile="${LIQUIBASE_DIR}\\${CHANGELOG_FILE}" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
-        """
-        }
+      // Set the full path for the changelog file
+      def changelogPath = "${workspaceDir}\\Liquid\\data\\liquibase\\${CHANGELOG_FILE}"
+
+      // Run Liquibase status in the correct directory
+      bat """
+        cd ${workspaceDir}\\Liquid\\data\\liquibase
+        liquibase status --url="${DEV_DB_URL}" --changeLogFile="${changelogPath}" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
+      """
     }
-    }
+  }
+}
 
 
     stage('Liquibase Update') {
