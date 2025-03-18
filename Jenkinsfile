@@ -1,5 +1,10 @@
 pipeline {
-  agent any
+  agent {
+    docker {
+      image 'liquibase:latest'
+    }
+
+  }
   stages {
     stage('Dev') {
       parallel {
