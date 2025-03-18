@@ -17,7 +17,7 @@ pipeline {
 
         stage('Directory') {
           steps {
-            powershell(script: 'pwd', returnStatus: true)
+            powershell(script: 'echo $PWD', returnStatus: true)
           }
         }
 
