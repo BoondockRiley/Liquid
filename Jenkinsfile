@@ -1,5 +1,5 @@
 pipeline {
-  agent any  // This will run on the default node (master)
+  agent any  // This will run on any available node (including master if no agents are specified)
   environment {
     LIQUIBASE_CREDS = credentials('liquibase-credentials')  // Ensure these credentials are set up in Jenkins
     LIQUIBASE_DIR = "Liquid/data/liquibase"
@@ -21,22 +21,32 @@ pipeline {
 
     stage('Liquibase Status') {
       steps {
-        sh """
-          liquibase status --url="${DEV_DB_URL}" --changeLogFile="${LIQUIBASE_DIR}/${CHANGELOG_FILE}" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
-        """
+        script {
+          // Running Liquibase status
+          sh """
+            liquibase status --url="${DEV_DB_URL}" --changeLogFile="${LIQUIBASE_DIR}/${CHANGELOG_FILE}" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
+          """
+        }
       }
     }
+
     stage('Liquibase Update') {
       steps {
-        sh """
-          liquibase update --url="${DEV_DB_URL}" --changeLogFile="${LIQUIBASE_DIR}/${CHANGELOG_FILE}" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
-        """
+        script {
+          // Running Liquibase update
+          sh """
+            liquibase update --url="${DEV_DB_URL}" --changeLogFile="${LIQUIBASE_DIR}/${CHANGELOG_FILE}" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
+          """
+        }
       }
     }
   }
   post {
     always {
-      cleanWs()
+      // Wrap cleanWs() inside a node block
+      node {
+        cleanWs()  // Clean workspace at the end of the pipeline
+      }
     }
   }
 }
