@@ -1,43 +1,18 @@
 pipeline {
-  agent {
-    docker { image 'liquibase/liquibase:4.4.2' }
-  }
-  environment {
-    LIQUIBASE_DIR = "Liquid/data/liquibase"
-    CHANGELOG_FILE = "example-changelog.sql" 
-    DEV_DB_URL = "jdbc:postgresql://localhost:5433/postgres"
-    QA_DB_URL = "jdbc:postgresql://localhost:5434/postgres"
-    DB_USERNAME = "postgres"
-    DB_PASSWORD = "secret"
-  }
+  agent none
   stages {
-    stage('Checkout Code') {
+    stage('Setup Docker') {
+      agent { label 'docker-agent' } // Replace with the appropriate node label
       steps {
-        echo 'Checking out repository...'
-        git branch: 'main', 
-            credentialsId: 'github-token', 
-            url: 'https://github.com/BoondockRiley/Liquid.git'
-      }
-    }
+        script {
+          def workspace = pwd() // Get the absolute path to the Jenkins workspace
+          echo "Workspace: ${workspace}"
 
-    stage('Liquibase Status') {
-      steps {
-        sh """
-          liquibase status --url="${DEV_DB_URL}" --changeLogFile="${LIQUIBASE_DIR}/${CHANGELOG_FILE}" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
-        """
+          docker.image('liquibase/liquibase:4.4.2').inside("-v ${workspace}:/mnt/workspace") {
+            sh 'liquibase status --url="jdbc:postgresql://localhost:5433/dev_database" --changeLogFile="Liquid/data/liquibase/example-changelog.sql" --username="postgres" --password="secret"'
+          }
+        }
       }
-    }
-    stage('Liquibase Update') {
-      steps {
-        sh """
-          liquibase update --url="${DEV_DB_URL}" --changeLogFile="${LIQUIBASE_DIR}/${CHANGELOG_FILE}" --username="${DB_USERNAME}" --password="${DB_PASSWORD}"
-        """
-      }
-    }
-  }
-  post {
-    always {
-      cleanWs()
     }
   }
 }
