@@ -24,9 +24,8 @@ docker cp SQL/Tables.sql postgres-dev:/tmp/Tables.sql
 docker cp SQL/Tables.sql postgres-qa:/tmp/Tables.sql
 
 
-# Step 6: Create the dvdrental schema in postgres-dev and run the tables.sql script using psql
-echo "*** Creating dvdrental schema and running tables.sql script..."
-docker exec -it postgres-dev bash -c "psql -U postgres -a -c 'CREATE SCHEMA dvdrental AUTHORIZATION postgres;' && psql -U postgres -a -f /tmp/Tables.sql -c '\q'"
+# Step 6: Create the schema in postgres-dev and run the tables.sql script using psql
+docker exec -it postgres-dev bash -c "psql -U postgres -a -f /tmp/Tables.sql -c '\q'"
 
 # Step 7: Confirm success or handle errors
 if [ $? -eq 0 ]; then
@@ -36,8 +35,8 @@ else
 fi
 
 # Step 6: Create the dvdrental schema in postgres-dev and run the tables.sql script using psql
-echo "*** Creating dvdrental schema and running tables.sql script..."
-docker exec -it postgres-qa bash -c "psql -U postgres -a -c 'CREATE SCHEMA dvdrental AUTHORIZATION postgres;' && psql -U postgres -a -f /tmp/Tables.sql -c '\q'"
+
+docker exec -it postgres-qa bash -c "psql -U postgres -a -f /tmp/Tables.sql -c '\q'"
 
 # Step 7: Confirm success or handle errors
 if [ $? -eq 0 ]; then
