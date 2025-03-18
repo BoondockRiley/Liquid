@@ -16,6 +16,7 @@ pipeline {
     stage('Docker') {
       steps {
         bat 'liquibase --version\''
+        echo 'Done'
       }
     }
 
